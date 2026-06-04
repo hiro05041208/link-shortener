@@ -1,11 +1,9 @@
 import Link from 'next/link'
 import { ArrowRight, BarChart3, Link2, QrCode, Shield, Zap } from 'lucide-react'
-import { auth } from '@clerk/nextjs/server'
 import { Button } from '@/components/ui/button'
+import { NavButtons } from '@/components/layout/nav-buttons'
 
-export default async function LandingPage() {
-  const { userId } = await auth()
-
+export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -15,20 +13,7 @@ export default async function LandingPage() {
             <span>LinkShort</span>
           </Link>
           <nav className="flex items-center gap-4">
-            {userId ? (
-              <Link href="/dashboard">
-                <Button>ダッシュボード</Button>
-              </Link>
-            ) : (
-              <>
-                <Link href="/sign-in">
-                  <Button variant="ghost">ログイン</Button>
-                </Link>
-                <Link href="/sign-up">
-                  <Button>無料で始める</Button>
-                </Link>
-              </>
-            )}
+            <NavButtons />
           </nav>
         </div>
       </header>
