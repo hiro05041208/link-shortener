@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
 import { ThemeProvider } from '@/components/layout/theme-provider'
+import { isClerkConfigured } from '@/lib/clerk-config'
 import './globals.css'
 
 const geistSans = Geist({
@@ -19,25 +19,30 @@ export const metadata: Metadata = {
   description: '無料のリンク短縮サービス。クリック数の追跡、QRコード生成、アクセス解析機能付き。',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return (
-    <ClerkProvider>
-      <html lang="ja" suppressHydrationWarning>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+  const inner = (
+    <html lang="ja" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
   )
+
+  if (!isClerkConfigured()) {
+    return inner
+  }
+
+  const { ClerkProvider } = await import('@clerk/nextjs')
+  return <ClerkProvider>{inner}</ClerkProvider>
 }

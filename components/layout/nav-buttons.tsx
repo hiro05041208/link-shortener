@@ -1,22 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { useUser } from '@clerk/nextjs'
+import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui/button'
 
-export function NavButtons() {
-  const { isLoaded, isSignedIn } = useUser()
+const ClerkNavButtons = dynamic(
+  () => import('./nav-buttons-clerk').then((m) => m.ClerkNavButtons),
+  { ssr: false }
+)
 
-  if (!isLoaded) return null
-
-  if (isSignedIn) {
-    return (
-      <Link href="/dashboard">
-        <Button>ダッシュボード</Button>
-      </Link>
-    )
-  }
-
+function StaticNavButtons() {
   return (
     <>
       <Link href="/sign-in">
@@ -27,4 +20,15 @@ export function NavButtons() {
       </Link>
     </>
   )
+}
+
+export function NavButtons() {
+  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+  const configured =
+    typeof key === 'string' &&
+    (key.startsWith('pk_test_') || key.startsWith('pk_live_')) &&
+    key.length >= 50
+
+  if (!configured) return <StaticNavButtons />
+  return <ClerkNavButtons />
 }
